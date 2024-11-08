@@ -45,11 +45,23 @@ class LinearClassifier:
 
 
 if __name__ == "__main__":
-    data_loader = DataLoader(r".\data\data.csv")
+    # Load the data
+    mydata = DataLoader(r".\data\data.csv")
+
+    # 1.1 How many malicious data points are there?
+    print(f'there are {(mydata.y == 1).sum()} malicious data points in the total {mydata.num} data points')
+
+    # 1.2 What can you say about the sparsity of the data?
+    # The data is very sparse with lots of entries to be 0
+
+    # 1.3 Do you think it makes sense to use one-hot-coding for some of the columns?
+    # It is reasonable to use one-hot-coding for some of the columns due to they are categorical data without orders.
+
+    #
     ratio = np.random.uniform()
-    data_loader.split(ratio)
-    w = np.random.uniform(low = -1, high = 1, size=(data_loader.X.shape[1]))
-    pred_corr_num = LinearClassifier.hyperplane_evaluator(data_loader.X, data_loader.y, w)
+    mydata.split(ratio)
+    w = np.random.uniform(low = -1, high = 1, size=(mydata.X.shape[1]))
+    pred_corr_num = LinearClassifier.hyperplane_evaluator(mydata.X, mydata.y, w)
 
     print(pred_corr_num)
 
