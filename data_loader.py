@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+from scipy.sparse import csr_matrix
 import time
 class DataLoader:
     def __init__(self, file_path= r".\data\data.csv"):
@@ -61,20 +62,20 @@ class LogisticClassifier:
     def logistic_regression_vectorize(self, K, alpha, lambda_reg):
         self.w = self.w_init
         for _ in range(K):
-            w_grad = lambda_reg * self.w
-            for i in range(self.X_train.shape[0]):
-                w_grad -= (self.y_train[i] * self.X_train[i]) / (
-                            1 + np.exp(self.y_train[i] * self.X_train[i].dot(self.w)))
+            s = self.y_train[:,None] * self.X_train @ self.w
+            z = self.y_train / (1 + np.exp(s))
+            w_grad = - self.X_train.T @ z + lambda_reg * self.w
             self.w -= w_grad * alpha
-
         return self.w
 
     def logistic_regression_sparse(self, K, alpha, lambda_reg):
         self.w = self.w_init
+        self.X_train = csr_matrix(self.X_train)
         for _ in range(K):
-            s = self.y_train * self.X_train @ self.w
+            s_product = self.X_train @ self.w
+            s = self.y_train * s_product.toarray()
             z = self.y_train / (1 + np.exp(s))
-            w_grad = self.X_train @ z + lambda_reg * self.w
+            w_grad = - self.X_train @ z + lambda_reg * self.w
             self.w -= w_grad * alpha
         return self.w
 
@@ -94,7 +95,7 @@ class LogisticClassifier:
 
 if __name__ == "__main__":
     # Load the data
-    mydata = DataLoader(r"C:\Users\11787\Desktop\Project1\LAOML-Project1\data\data.csv")
+    mydata = DataLoader(r".\data\data.csv")
 
     # 1.1 How many malicious data points are there?
     print(f'there are {(mydata.y == 1).sum()} malicious data points in the total {mydata.num} data points')
@@ -134,8 +135,11 @@ if __name__ == "__main__":
     end = time.time()
     print(f'Accuracy on the test set: {accuracy * 100:.2f}%, the time cost is {end-start}s')
 
-    
-
+    # start = time.time()
+    # log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.1, flag=2)
+    # accuracy = log_reg.predict(X_test, y_test)
+    # end = time.time()
+    # print(f'Accuracy on the test set: {accuracy * 100:.2f}%, the time cost is {end - start}s')
 
 
 
