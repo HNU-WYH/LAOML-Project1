@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-
+import time
 class DataLoader:
     def __init__(self, file_path= r".\data\data.csv"):
         self.X = None
@@ -36,16 +36,46 @@ class LogisticClassifier:
     def __init__(self, X_train, y_train, w_init):
         self.X_train = X_train
         self.y_train = y_train
-        self.w = w_init
+        self.w_init = w_init
+        self.w = None
 
-    def logistic_regression(self, K, alpha, lambda_reg):
+    def logistic_regression(self, K, alpha, lambda_reg, flag = 0):
+        if flag == 0:
+            self.logistic_regression_entrywise(K, alpha, lambda_reg)
+        if flag == 1:
+            self.logistic_regression_vectorize(K, alpha, lambda_reg)
+        if flag == 2:
+            self.logistic_regression_sparse(K, alpha, lambda_reg)
+
+    def logistic_regression_entrywise(self, K, alpha, lambda_reg):
+        self.w = self.w_init
+        for k in range(K):
+            w_grad = lambda_reg * self.w
+            for i in range(self.X_train.shape[0]):
+                # if k == 5:
+                #     print(i)
+                w_grad -= (self.y_train[i] * self.X_train[i])/(1 + np.exp(self.y_train[i] * self.X_train[i].dot(self.w)))
+            self.w -= w_grad * alpha
+        return self.w
+
+    def logistic_regression_vectorize(self, K, alpha, lambda_reg):
+        self.w = self.w_init
         for _ in range(K):
             w_grad = lambda_reg * self.w
             for i in range(self.X_train.shape[0]):
-                w_grad -= (self.y_train[i] * self.X_train[i])/(1 + np.exp(self.y_train[i] * self.X_train[i] @ self.w))
-
+                w_grad -= (self.y_train[i] * self.X_train[i]) / (
+                            1 + np.exp(self.y_train[i] * self.X_train[i].dot(self.w)))
             self.w -= w_grad * alpha
 
+        return self.w
+
+    def logistic_regression_sparse(self, K, alpha, lambda_reg):
+        self.w = self.w_init
+        for _ in range(K):
+            s = self.y_train * self.X_train @ self.w
+            z = self.y_train / (1 + np.exp(s))
+            w_grad = self.X_train @ z + lambda_reg * self.w
+            self.w -= w_grad * alpha
         return self.w
 
     def predict(self, X_test, y_test):
@@ -91,9 +121,20 @@ if __name__ == "__main__":
 
     # 5. Logistic Classifier
     log_reg = LogisticClassifier(X_train, y_train, w_init)
-    log_reg.logistic_regression(K=1000, alpha=0.01, lambda_reg=0.1)
+
+    start = time.time()
+    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.1, flag= 0)
     accuracy = log_reg.predict(X_test, y_test)
-    print(f'Accuracy on the test set: {accuracy * 100:.2f}%')
+    end = time.time()
+    print(f'Accuracy on the test set: {accuracy * 100:.2f}%, the time cost is {end-start}s')
+
+    start = time.time()
+    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.1, flag=1)
+    accuracy = log_reg.predict(X_test, y_test)
+    end = time.time()
+    print(f'Accuracy on the test set: {accuracy * 100:.2f}%, the time cost is {end-start}s')
+
+    
 
 
 
