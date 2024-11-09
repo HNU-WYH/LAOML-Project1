@@ -1,7 +1,7 @@
 import numpy as np
-import scipy
 from scipy.sparse import csr_matrix
 import time
+
 class DataLoader:
     def __init__(self, file_path= r".\data\data.csv"):
         self.X = None
@@ -124,23 +124,19 @@ if __name__ == "__main__":
     log_reg = LogisticClassifier(X_train, y_train, w_init)
 
     start = time.time()
-    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.1, flag= 0)
+    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.01, flag= 0)
     accuracy = log_reg.predict(X_test, y_test)
     end = time.time()
     print(f'Accuracy on the test set: {accuracy * 100:.2f}%, the time cost is {end-start}s')
 
     start = time.time()
-    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.1, flag=1)
+    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.01, flag=1)
     accuracy = log_reg.predict(X_test, y_test)
     end = time.time()
     print(f'Accuracy on the test set: {accuracy * 100:.2f}%, the time cost is {end-start}s')
 
     start = time.time()
-    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.1, flag=2)
+    log_reg.logistic_regression(K=100, alpha=0.01, lambda_reg=0.01, flag=2)
     accuracy = log_reg.predict(X_test, y_test)
     end = time.time()
     print(f'Accuracy on the test set: {accuracy * 100:.2f}%, the time cost is {end - start}s')
-
-
-
-
